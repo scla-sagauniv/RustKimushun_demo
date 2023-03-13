@@ -10,18 +10,25 @@ use display_code::DisplayCode;
 const BIT_LEN: usize = 21;
 fn main() {
     let origin_img = image::open("cat.png").unwrap();
-    to_code(
+    let display_cords = to_code(
         origin_img.width(),
         origin_img.height(),
         origin_img.as_bytes(),
     );
+    for a_display_code in display_cords {
+        println!(
+            "color={:?}::char={}",
+            a_display_code.color_code.to_color(),
+            a_display_code.char_code.to_char()
+        )
+    }
     let img = image::open("suku.png").unwrap();
     reconstruction(img.width(), img.height(), &img.as_bytes());
 }
 
 fn to_code(width: u32, height: u32, img_bytes: &[u8]) -> Vec<DisplayCode> {
     // ここをImageRgba8にするかImageRgb8にするかで結果がかわる
-    let img = DynamicImage::ImageRgba8(
+    let img = DynamicImage::ImageRgb8(
         image::ImageBuffer::from_vec(width, height, img_bytes.to_vec()).unwrap(),
     );
     // バイト文字列としてエンコード

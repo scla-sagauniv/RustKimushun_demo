@@ -18,9 +18,17 @@ impl CharCode {
         CharCode { char: char_level }
     }
     pub fn to_char(&self) -> char {
-        let u: &[u8; 1] = &[u8::from_str_radix(&self.char, 2).unwrap()];
-        let s: &str = std::str::from_utf8(u).unwrap();
-        let c: Vec<char> = s.chars().collect();
-        return c[0];
+        let mut cahr_list: [char; 64] = ['-'; 64];
+        for (i, c) in ('A'..='Z').enumerate() {
+            cahr_list[i] = c;
+            cahr_list[i + 26] = c.to_ascii_lowercase();
+        }
+        for (i, c) in ('0'..='9').enumerate() {
+            cahr_list[i + 52] = c;
+        }
+        cahr_list[62] = '+';
+        cahr_list[63] = '/';
+        let u8_code = u8::from_str_radix(&self.char, 2).unwrap();
+        return cahr_list[u8_code as usize];
     }
 }

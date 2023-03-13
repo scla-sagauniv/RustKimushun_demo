@@ -6,6 +6,7 @@ pub struct ColorCode {
     pub b: String,
 }
 
+// RGB値（10進数）
 #[derive(Debug)]
 pub struct Color {
     pub r: u8,

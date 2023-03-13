@@ -3,7 +3,7 @@ fn main() {
     lt.set_image("test.png").unwrap();
     println!("{}", lt.get_utf8_text().unwrap());
     let boxes = lt
-        .get_component_boxes(leptess::capi::TessPageIteratorLevel_RIL_WORD, true)
+        .get_component_boxes(leptess::capi::TessPageIteratorLevel_RIL_SYMBOL, true)
         .unwrap();
 
     let mut img = image::open("test.png").unwrap();

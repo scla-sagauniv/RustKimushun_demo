@@ -16,6 +16,33 @@ pub struct CharCode {
     pub char: String,
 }
 
+impl CharCode {
+    pub fn from_char(c: char) -> CharCode {
+        let mut char_level: String = "".to_string();
+        match c {
+            'A'..='Z' => char_level = format!("{:0>6b}", c as u8 - 'A' as u8),
+            'a'..='z' => char_level = format!("{:0>6b}", c as u8 - 'a' as u8 + 26),
+            '0'..='9' => char_level = format!("{:0>6b}", c as u8 - '0' as u8 + 52),
+            '+' => char_level = format!("{:0>6b}", 62),
+            '/' => char_level = format!("{:0>6b}", 63),
+            _ => println!(""),
+        };
+        CharCode { char: char_level }
+    }
+    pub fn to_char(&self) -> char {
+        let u: &[u8; 1] = &[u8::from_str_radix(&self.char, 2).unwrap()];
+        let s: &str = std::str::from_utf8(u).unwrap();
+        let c: Vec<char> = s.chars().collect();
+        return c[0];
+    }
+}
+
+#[derive(Debug)]
+pub struct DisplayCode {
+    pub color_code: ColorCode,
+    pub char_code: CharCode,
+}
+
 fn main() {
     let img: DynamicImage = image::open("cat.png").unwrap();
     // バイト文字列としてエンコード
@@ -23,10 +50,7 @@ fn main() {
     // バイナリを21文字ずつに分割
     let splitted_binary: Vec<String> = split_binary(binaries);
     // 21文字を構造体に分解
-    let made_structures: (Vec<ColorCode>, Vec<CharCode>) = make_structure(splitted_binary);
-    let (color_codes, char_codes): (Vec<ColorCode>, Vec<CharCode>) = made_structures;
-    print!("{:?}", color_codes);
-    print!("{:?}", char_codes);
+    let made_structures: Vec<DisplayCode> = make_structure(splitted_binary);
 }
 
 fn split_binary(binaries: Vec<u8>) -> Vec<String> {
@@ -60,22 +84,23 @@ fn split_binary(binaries: Vec<u8>) -> Vec<String> {
     return splitted_binary;
 }
 
-fn make_structure(splitted_binary: Vec<String>) -> (Vec<ColorCode>, Vec<CharCode>) {
-    let mut color_code: Vec<ColorCode> = Vec::new();
-    let mut char_code: Vec<CharCode> = Vec::new();
+fn make_structure(splitted_binary: Vec<String>) -> Vec<DisplayCode> {
+    let mut display_code: Vec<DisplayCode> = Vec::new();
     for binary in splitted_binary {
         // print!("all:{}\n ", binary.to_string());
         // print!("fir{}\n ", binary[0..5].to_string());
         // print!("mid{}\n ", binary[5..10].to_string());
         // print!("fin{}\n\n ", binary[15..].to_string());
-        color_code.push(ColorCode {
-            r: binary[0..5].to_string(),
-            g: binary[5..10].to_string(),
-            b: binary[10..15].to_string(),
-        });
-        char_code.push(CharCode {
-            char: binary[15..].to_string(),
-        });
+        display_code.push(DisplayCode {
+            color_code: (ColorCode {
+                r: binary[0..5].to_string(),
+                g: binary[5..10].to_string(),
+                b: binary[10..15].to_string(),
+            }),
+            char_code: (CharCode {
+                char: binary[15..].to_string(),
+            }),
+        })
     }
-    return (color_code, char_code);
+    return display_code;
 }

@@ -13,7 +13,7 @@ impl CharCode {
             '0'..='9' => char_level = format!("{:0>6b}", c as u8 - '0' as u8 + 52),
             '+' => char_level = format!("{:0>6b}", 62),
             '/' => char_level = format!("{:0>6b}", 63),
-            _ => println!(""),
+            _ => println!("Not base64"),
         };
         CharCode { char: char_level }
     }

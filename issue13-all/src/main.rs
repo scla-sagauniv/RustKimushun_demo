@@ -44,9 +44,9 @@ fn to_code(width: u32, height: u32, img_bytes: &[u8]) -> Vec<DisplayCode> {
     // バイナリを21文字ずつに分割
     let mut splitted_binary: Vec<String> = split_binary(binaries);
     // widthを0番目
-    splitted_binary.insert(0, format!("{:0>021b}", width));
+    splitted_binary.insert(0, format!("{:0>21b}", width));
     // heightを1番目
-    splitted_binary.insert(1, format!("{:>021b}", height));
+    splitted_binary.insert(1, format!("{:0>21b}", height));
     // 21文字を構造体に分解
     make_structure(splitted_binary)
 }

@@ -1,4 +1,5 @@
 use std::io::Cursor;
+use std::vec;
 
 use image::DynamicImage;
 
@@ -11,20 +12,27 @@ use maplit::hashmap;
 const BIT_LEN: usize = 21;
 fn main() {
     let origin_img = image::open("cat.png").unwrap();
+    // println!("===origin===\n{:?}", origin_img.as_bytes());
     let display_cords = to_code(
         origin_img.width(),
         origin_img.height(),
         origin_img.as_bytes(),
     );
-    for a_display_code in display_cords {
-        println!(
-            "color={:?}::char={}",
-            a_display_code.color_code.to_color(),
-            a_display_code.char_code.to_char()
-        )
-    }
+    // for a_display_code in display_cords.iter() {
+    //     println!(
+    //         "color={:?}::char={}",
+    //         a_display_code.color_code.to_color(),
+    //         a_display_code.char_code.to_char()
+    //     )
+    // }
     let img = image::open("suku.png").unwrap();
-    reconstruction(img.width(), img.height(), &img.as_bytes());
+    reconstruction(
+        img.width(),
+        img.height(),
+        &img.as_bytes(),
+        origin_img.width(),
+        origin_img.height(),
+    );
 }
 
 fn to_code(width: u32, height: u32, img_bytes: &[u8]) -> Vec<DisplayCode> {
@@ -88,7 +96,7 @@ fn make_structure(splitted_binary: Vec<String>) -> Vec<DisplayCode> {
     return display_code;
 }
 
-fn reconstruction(width: u32, height: u32, img_bytes: &[u8]) {
+fn reconstruction(width: u32, height: u32, img_bytes: &[u8], orig_width: u32, orig_height: u32) {
     // ここをImageRgba8にするかImageRgb8にするかで結果がかわる
     let mut img = DynamicImage::ImageRgba8(
         image::ImageBuffer::from_vec(width, height, img_bytes.to_vec()).unwrap(),
@@ -98,11 +106,15 @@ fn reconstruction(width: u32, height: u32, img_bytes: &[u8]) {
     for (i, mut a_image) in images.iter().enumerate() {
         all_img_bytes_str += &make_img_bytes_str(&mut a_image);
     }
-    let img_result = image::load_from_memory_with_format(
-        &all_img_bytes_str.into_bytes(),
-        image::ImageFormat::Png,
-    )
-    .unwrap();
+    let mut img_bytes: Vec<u8> = vec![];
+    for chunk in all_img_bytes_str.as_bytes().chunks(8) {
+        let chunk_str = std::str::from_utf8(chunk).unwrap();
+        let chunk_u8_radix = u8::from_str_radix(&chunk_str, 2).unwrap();
+        img_bytes.push(chunk_u8_radix);
+    }
+    let img_result = DynamicImage::ImageRgb8(
+        image::ImageBuffer::from_raw(orig_width, orig_height, img_bytes).unwrap(),
+    );
     img_result.save("result.png");
 }
 
@@ -186,8 +198,8 @@ fn make_img_bytes_str(img: &DynamicImage) -> String {
 
 fn img_split(img: &mut DynamicImage) -> Vec<DynamicImage> {
     let split_y = 7;
-    println!("{}", img.height());
-    println!("{}", img.width());
+    // println!("{}", img.height());
+    // println!("{}", img.width());
     let h = img.height() / split_y;
     let w = img.width();
     let x = 0;

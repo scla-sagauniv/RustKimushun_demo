@@ -67,10 +67,10 @@ fn split_binary(binaries: Vec<u8>) -> Vec<String> {
     }
 
     // 最後を21文字に変換
-    let last_item: usize = splitted_binary.last().unwrap().parse().unwrap();
-    let adjusted_last_item: String = format!("{:>021b}", last_item);
-    println!("{:?}", last_item);
-    println!("{}", adjusted_last_item);
+    // let last_item: u8 = splitted_binary.last().unwrap().parse().unwrap();
+    println!("{}", splitted_binary.last().unwrap());
+    let last_item: u32 = u32::from_str_radix(&splitted_binary.last().unwrap(), 2).unwrap();
+    let adjusted_last_item: String = format!("{:0>21b}", last_item);
 
     splitted_binary.pop();
     splitted_binary.push(adjusted_last_item);

@@ -25,13 +25,7 @@ fn main() {
     //     )
     // }
     let img = image::open("suku.png").unwrap();
-    reconstruction(
-        img.width(),
-        img.height(),
-        &img.as_bytes(),
-        origin_img.width(),
-        origin_img.height(),
-    );
+    reconstruction(img.width(), img.height(), &img.as_bytes())
 }
 
 fn to_code(width: u32, height: u32, img_bytes: &[u8]) -> Vec<DisplayCode> {
@@ -109,7 +103,7 @@ fn make_structure(splitted_binary: Vec<String>) -> Vec<DisplayCode> {
     return display_code;
 }
 
-fn reconstruction(width: u32, height: u32, img_bytes: &[u8], orig_width: u32, orig_height: u32) {
+fn reconstruction(width: u32, height: u32, img_bytes: &[u8]) {
     // ここをImageRgba8にするかImageRgb8にするかで結果がかわる
     let mut img = DynamicImage::ImageRgba8(
         image::ImageBuffer::from_vec(width, height, img_bytes.to_vec()).unwrap(),
@@ -119,8 +113,12 @@ fn reconstruction(width: u32, height: u32, img_bytes: &[u8], orig_width: u32, or
     for (i, mut a_image) in images.iter().enumerate() {
         all_img_bytes_str += &make_img_bytes_str(&mut a_image);
     }
+    let (size_bytes, img_bytes_str) = all_img_bytes_str.split_at(42);
+    let (width_bytes, height_bytes) = size_bytes.split_at(21);
+    let orig_width = u8::from_str_radix(width_bytes, 10).unwrap();
+    let orig_height = u8::from_str_radix(height_bytes, 10).unwrap();
     let mut img_bytes: Vec<u8> = vec![];
-    for chunk in all_img_bytes_str.as_bytes().chunks(8) {
+    for chunk in img_bytes_str.as_bytes().chunks(8) {
         let chunk_str = std::str::from_utf8(chunk).unwrap();
         let chunk_u8_radix = u8::from_str_radix(&chunk_str, 2).unwrap();
         img_bytes.push(chunk_u8_radix);

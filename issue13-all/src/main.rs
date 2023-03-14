@@ -9,7 +9,6 @@ use display_code::DisplayCode;
 use display_code::{Color, ColorCode};
 use maplit::hashmap;
 
-const BIT_LEN: usize = 21;
 fn main() {
     let origin_img = image::open("cat.png").unwrap();
     // println!("===origin===\n{:?}", origin_img.as_bytes());
@@ -43,7 +42,11 @@ fn to_code(width: u32, height: u32, img_bytes: &[u8]) -> Vec<DisplayCode> {
     // バイト文字列としてエンコード
     let binaries: Vec<u8> = img.into_bytes();
     // バイナリを21文字ずつに分割
-    let splitted_binary: Vec<String> = split_binary(binaries);
+    let mut splitted_binary: Vec<String> = split_binary(binaries);
+    // widthを0番目
+    splitted_binary.insert(0, format!("{:0>021b}", width));
+    // heightを1番目
+    splitted_binary.insert(1, format!("{:>021b}", height));
     // 21文字を構造体に分解
     make_structure(splitted_binary)
 }
@@ -63,21 +66,31 @@ fn split_binary(binaries: Vec<u8>) -> Vec<String> {
         splitted_binary.push(s);
     }
 
-    // 最後が21文字かのチェック
-    let last_item: &String = splitted_binary.last().unwrap();
-    let last_item_len: usize = last_item.chars().count();
+    // 最後を21文字に変換
+    let last_item: usize = splitted_binary.last().unwrap().parse().unwrap();
+    let adjusted_last_item: String = format!("{:>021b}", last_item);
+    println!("{:?}", last_item);
+    println!("{}", adjusted_last_item);
 
-    // 長さが21なら何もしない
-    if last_item_len == BIT_LEN {
-        print!("{}", &last_item_len);
-    } else {
-        let adjust_zero: String = "0".repeat(BIT_LEN - &last_item_len);
-        let new_last_item: String = last_item.to_string() + &adjust_zero;
-        splitted_binary.pop();
-        splitted_binary.push(new_last_item);
-    }
+    splitted_binary.pop();
+    splitted_binary.push(adjusted_last_item);
     return splitted_binary;
 }
+
+// fn adjust_bit_len(lack_bit: String) -> String {
+//     const CORRECT_BIT_LEN: usize = 21;
+//     let bit_len: usize = lack_bit.chars().count();
+//     let mut correct_bit: String;
+//     // 長さが21なら何もしない
+//     if bit_len == CORRECT_BIT_LEN {
+//         println!("oh, you are 21! -> {:?}", &bit_len);
+//         correct_bit = lack_bit;
+//     } else {
+//         let adjust_zero: String = "0".repeat(CORRECT_BIT_LEN - &bit_len);
+//         correct_bit = adjust_zero.to_string() + &lack_bit.to_string();
+//     }
+//     return correct_bit;
+// }
 
 fn make_structure(splitted_binary: Vec<String>) -> Vec<DisplayCode> {
     let mut display_code: Vec<DisplayCode> = Vec::new();

@@ -25,7 +25,11 @@ fn main() {
     //     )
     // }
     let img = image::open("suku.png").unwrap();
-    reconstruction(img.width(), img.height(), &img.as_bytes(), display_cords)
+    reconstruction(
+        img.width(),
+        img.height(),
+        &img.as_bytes(), /* , display_cords*/
+    )
 }
 
 fn to_code(width: u32, height: u32, img_bytes: &[u8]) -> Vec<DisplayCode> {
@@ -107,23 +111,23 @@ fn reconstruction(
     width: u32,
     height: u32,
     img_bytes: &[u8],
-    for_debug_cord_list: Vec<DisplayCode>,
+    /*for_debug_cord_list: Vec<DisplayCode>,*/
 ) {
     // ここをImageRgba8にするかImageRgb8にするかで結果がかわる
-    // let mut img = DynamicImage::ImageRgba8(
-    //     image::ImageBuffer::from_vec(width, height, img_bytes.to_vec()).unwrap(),
-    // );
-    // let images = img_split(&mut img);
+    let mut img = DynamicImage::ImageRgba8(
+        image::ImageBuffer::from_vec(width, height, img_bytes.to_vec()).unwrap(),
+    );
+    let images = img_split(&mut img);
     let mut all_img_bytes_str = String::from("");
-    // for (i, mut a_image) in images.iter().enumerate() {
-    //     all_img_bytes_str += &make_img_bytes_str(&mut a_image);
-    // }
-    for code in for_debug_cord_list {
-        all_img_bytes_str += &code.color_code.r;
-        all_img_bytes_str += &code.color_code.g;
-        all_img_bytes_str += &code.color_code.b;
-        all_img_bytes_str += &code.char_code.char;
+    for (i, mut a_image) in images.iter().enumerate() {
+        all_img_bytes_str += &make_img_bytes_str(&mut a_image);
     }
+    // for code in for_debug_cord_list {
+    //     all_img_bytes_str += &code.color_code.r;
+    //     all_img_bytes_str += &code.color_code.g;
+    //     all_img_bytes_str += &code.color_code.b;
+    //     all_img_bytes_str += &code.char_code.char;
+    // }
     let (size_bytes, img_bytes_str) = all_img_bytes_str.split_at(42);
     let (width_bytes, height_bytes) = size_bytes.split_at(21);
     println!("{}", width_bytes);
